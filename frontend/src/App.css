@@ -1,0 +1,16 @@
+.ProseMirror {
+    min-height: 400px;
+    padding: 1rem;
+    cursor: text;
+  }
+  
+  .ProseMirror:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  
+  .ProseMirror p {
+    margin-bottom: 1.5rem;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
