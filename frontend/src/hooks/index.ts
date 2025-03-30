@@ -12,7 +12,21 @@ export interface Blog{
     },
     "id": string
 }
-
+export interface User{
+    "id": string,
+    "name": string,
+    "email": string,
+}
+export interface Comment{
+    "id": string,
+    "content": string,
+    "createdAt": string,
+    "userId": string,
+    "postId": string,
+    "user": {
+        "name": string
+    }
+}
 export const useBlog = ({id}:{id: string}) =>{
     const [loading, setLoading] = useState(true)
     const [blog, setBlog] = useState<Blog[]>([])
@@ -57,6 +71,50 @@ export const useBlogs = () => {
 
       loading,
       blogs
+    }
+  )
+}
+export const useUser = () => {
+    const [user, setUser] = useState<User | null>(null)
+    // console.log(localStorage.getItem('token'))
+    useEffect(()=>{
+        const token = localStorage.getItem('token')
+        axios.get(`${BACKEND_URL}/api/v1/user/me`, {
+            headers: { 
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(res =>{
+                setUser(res.data.user)
+            
+            })
+    }, [])
+  return ({
+        user
+    }
+  )
+}
+
+export const useComments = ({id}:{id: string}) => {
+    const [loading, setLoading] = useState(true)
+    const [comments, setComments] = useState<Comment[]>([])
+    // console.log(localStorage.getItem('token'))
+    useEffect(()=>{
+        const token = localStorage.getItem('token')
+        axios.get(`${BACKEND_URL}/api/v1/blog/comments/${id}`, {
+            
+            headers: { 
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(res =>{
+                setComments(res.data.comments)
+                setLoading(false)
+            })
+    }, [id])
+  return ({
+      loading,
+      comments
     }
   )
 }

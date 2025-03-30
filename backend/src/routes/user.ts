@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
-import { sign } from "hono/jwt";
+import { sign, verify } from "hono/jwt";
 import {signinInput, signupInput } from "@himanshu01/blog-common";
 export const userRouter = new Hono<{
     Bindings: {
@@ -72,4 +72,45 @@ userRouter.post('/signup', async (c) => {
         return c.json({message: "error while signing up"})
       }
 })
-  
+
+userRouter.get('/me', async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.A_DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const authHeader = c.req.header('Authorization');
+
+  if (!authHeader) {
+    c.status(401);
+    return c.json({ message: "Unauthorized: No token provided" });
+  }
+
+  try {
+    const token = authHeader.split(" ")[1];
+
+    const payload = await verify(token, c.env.JWT_SECRET);
+    if (!payload || !payload.id) {
+        c.status(401);
+        return c.json({ message: "Unauthorized: Invalid token" });
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { id: payload.id.toString() },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            password: false,         
+        }
+    });
+
+    if (!user) {
+        c.status(404);
+        return c.json({ message: "User not found" });
+    }
+    return c.json({success:true, user});
+  } catch (error) {
+    c.status(401);
+    return c.json({ message: "Unauthorized: Token verification failed" });
+  }
+});

@@ -1,11 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateBlogInput = exports.signupInput = exports.signinInput = exports.createBlogInput = void 0;
+exports.updateBlogInput = exports.signupInput = exports.signinInput = exports.createCommentInput = exports.createBlogInput = void 0;
 const zod_1 = require("zod");
 exports.createBlogInput = zod_1.z.object({
     title: zod_1.z.string().min(3),
     content: zod_1.z.string(),
     authorId: zod_1.z.string()
+});
+exports.createCommentInput = zod_1.z.object({
+    content: zod_1.z.string().min(1, "Comment cannot be empty"),
+    userId: zod_1.z.string(),
+    postId: zod_1.z.string(),
 });
 exports.signinInput = zod_1.z.object({
     email: zod_1.z.string().email(),

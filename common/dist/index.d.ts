@@ -12,6 +12,19 @@ export declare const createBlogInput: z.ZodObject<{
     content: string;
     authorId: string;
 }>;
+export declare const createCommentInput: z.ZodObject<{
+    content: z.ZodString;
+    userId: z.ZodString;
+    postId: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    content: string;
+    userId: string;
+    postId: string;
+}, {
+    content: string;
+    userId: string;
+    postId: string;
+}>;
 export declare const signinInput: z.ZodObject<{
     email: z.ZodString;
     password: z.ZodString;
@@ -49,3 +62,4 @@ export type CreateBlogInput = z.infer<typeof createBlogInput>;
 export type UpdateBlogInput = z.infer<typeof updateBlogInput>;
 export type SigninInput = z.infer<typeof signinInput>;
 export type SignupInput = z.infer<typeof signupInput>;
+export type CreateCommentInput = z.infer<typeof createCommentInput>;

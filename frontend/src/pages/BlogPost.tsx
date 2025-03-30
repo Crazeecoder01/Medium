@@ -4,6 +4,7 @@ import { AppBar } from "../components/AppBar";
 import { useBlog } from "../hooks";
 import { FullBlog } from "../components/FullBlog";
 import { Spinner } from "../components/Spinner";
+import { Comment } from "../components/PostComment";
 
 
 export const BlogPost = () => {
@@ -28,6 +29,7 @@ export const BlogPost = () => {
     return (
         <>
         <FullBlog blog={blog} />
+        <Comment />
         </>
     );
 };

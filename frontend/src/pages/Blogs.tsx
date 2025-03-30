@@ -37,7 +37,7 @@ export const Blogs = () => {
                                     content={blog.content}
                                     publishedAt={blog.publishedAt}
                                     tags={blog.tags}
-                                    />
+                                />
                             </article>
                         ))
                     )}

@@ -1,4 +1,4 @@
-import { createBlogInput, updateBlogInput } from "@himanshu01/blog-common";
+import { createBlogInput, updateBlogInput, createCommentInput } from "@himanshu01/blog-common";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
@@ -13,7 +13,6 @@ export const blogRouter = new Hono<{
         userId: string
     }
 }>()
-
 
 blogRouter.use('/*', async(c, next)=>{
     const header = c.req.header('Authorization') || ""
@@ -52,10 +51,10 @@ blogRouter.post('/', async (c) => {
         datasourceUrl: c.env.A_DATABASE_URL,
     }).$extends(withAccelerate())
     const {success} = createBlogInput.safeParse(body)
-        if(!success){
-            c.status(400)
-            return c.json({message: 'invalid input'})
-        }
+    if(!success){
+        c.status(400)
+        return c.json({message: 'invalid input'})
+    }
     const userId = c.get('userId')
     const blog = await prisma.post.create({
         data:{
@@ -155,5 +154,47 @@ blogRouter.get('/:id', async (c) => {
     }
 })
 
+blogRouter.post('/comments', async (c) =>{
+    const body = await c.req.json()
+    const prisma =  new PrismaClient({
+        datasourceUrl: c.env.A_DATABASE_URL,
+    }).$extends(withAccelerate())
+    const {success} = createCommentInput.safeParse(body)
+    console.log("createCommentInput:", createCommentInput);
+    console.log("safeParse function:", createCommentInput?.safeParse);
+
+    if(!success){
+        c.status(400)
+        return c.json({message: 'invalid input'})
+    }
+    const userId = c.get('userId')
+    const comment = await prisma.comment.create({
+        data:{
+            content: body.content,
+            createdAt: new Date(),
+            postId: body.postId,
+            userId: userId,
+        },
+        // include: {
+        //     user: true,
+        // },
+    })
+    return c.json({id: comment.id, postid: comment.postId})
+})
+blogRouter.get('/comments/:id', async (c) => {
+    const id = c.req.param('id')
+    const prisma =  new PrismaClient({
+        datasourceUrl: c.env.A_DATABASE_URL,
+    }).$extends(withAccelerate())
+    const comments = await prisma.comment.findMany({
+        where:{
+            postId: id
+        },
+        include:{
+            user: true,
+        }
+    })
+    return c.json(comments)
+})
 
 
