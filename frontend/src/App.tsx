@@ -7,6 +7,7 @@ import Home from './pages/Home'
 import { Blogs } from './pages/Blogs'
 import { BlogPost } from './pages/BlogPost'
 import { Publish } from './pages/Publish'
+import Subscription from './pages/Subscription';
 // import Blog from './pages/Blog'
 
 function App() {
@@ -18,7 +19,8 @@ function App() {
      <Routes>
        <Route path="/signin" element={<SignIn />} />
        <Route path="/signup" element={<Signup  />} />
-       <Route path="/home" element={<Home />} />
+       <Route path="/" element={<Home />} />
+       <Route path="/subscription" element={<Subscription />} />
        <Route path="/blogs" element={<Blogs />} />
        <Route path="/blog/:id" element={<BlogPost />} />
        <Route path="/publish" element={<Publish />} />

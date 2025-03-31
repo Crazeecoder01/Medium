@@ -18,7 +18,7 @@ blogRouter.use('/*', async(c, next)=>{
     const header = c.req.header('Authorization') || ""
     // Bearer token => ['Bearer', 'token']
     const token = header?.split(' ')[1]
-  
+    
     if(!token){
       c.status(401)
       return c.json({message: 'no token provided'})

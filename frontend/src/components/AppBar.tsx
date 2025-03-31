@@ -16,6 +16,7 @@ export const AppBar = () => {
            
         </div>
         <div className='flex items-center gap-6'>
+        <Link to="/subscription" className="mr-4">Subscription</Link>
           <Link to={'/publish'}>
           <GlowingButton text='New' />
             {/* <button className='bg-blue-500 text-white px-4 py-2 rounded'>New</button> */}

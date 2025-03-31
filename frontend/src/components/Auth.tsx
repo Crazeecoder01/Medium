@@ -22,18 +22,28 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
            const response = await axios.post(`${BACKEND_URL}/api/v1/user/${type === "signup"?"signup":"signin"}`, {
                 ...postInputs
            })
+           
+
+           if (response.data.message) {
+            alert(response.data.message);  // Show alert with the message from backend
+            return;
+         }
             const jwt = response.data;
             
             localStorage.setItem("token", jwt.jwt);
             navigate("/blogs");
-        }catch(e){
-            console.log(e)
+        }catch(error){
+            if (axios.isAxiosError(error) && error.response) {
+                alert(error.response.data.message || "An error occurred. Please try again.");
+            } else {
+                alert("Network error. Please check your connection.");
+            }
         }
     }
 
     return <div className="h-screen flex justify-center flex-col">
         
-        {JSON.stringify(postInputs)}
+        {/* {JSON.stringify(postInputs)} */}
         <div className="flex justify-center">
             <div>
                 <div className="px-10 flex flex-col justify-center items-center gap-2">

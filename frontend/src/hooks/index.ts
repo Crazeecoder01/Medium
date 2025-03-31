@@ -118,3 +118,44 @@ export const useComments = ({id}:{id: string}) => {
     }
   )
 }
+
+type Plan = {
+    id: string;
+    name: string;
+    price: number;
+  };
+  
+  export const usePlans = (token: string | null) => {
+    const [plans, setPlans] = useState<Plan[]>([]);
+    const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
+    const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+      const fetchPlans = async () => {
+        try {
+          const response = await axios.get(`${BACKEND_URL}/api/v1/user/plans`);
+          setPlans(response.data);
+        } catch (error) {
+          console.error("Error fetching plans:", error);
+        }
+      };
+  
+      const fetchSubscriptionStatus = async () => {
+        if (!token) return;
+        try {
+          const response = await axios.get(`${BACKEND_URL}/api/v1/user/subscription-status`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (response.data.isSubscribed) {
+            setCurrentPlan(response.data.plan);
+          }
+        } catch (error) {
+          console.error("Error fetching subscription status:", error);
+        }
+      };
+  
+      Promise.all([fetchPlans(), fetchSubscriptionStatus()]).finally(() => setLoading(false));
+    }, [token]);
+  
+    return { plans, currentPlan, setCurrentPlan, loading };
+  };

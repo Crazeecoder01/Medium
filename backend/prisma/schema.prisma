@@ -14,6 +14,7 @@ model User {
   password  String
   posts     Post[]
   comments  Comment[]
+  subscription UserSubscription?
   @@map("User") 
 }
 
@@ -37,4 +38,23 @@ model Comment {
   userId    String
   post      Post     @relation(fields: [postId], references: [id])
   postId    String
+}
+
+model SubscriptionPlan {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  details   String
+  price       Int     
+  duration    Int     
+  createdAt   DateTime @default(now())
+  users       UserSubscription[]
+}
+model UserSubscription {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  planId      String
+  plan        SubscriptionPlan @relation(fields: [planId], references: [id])
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
 }
