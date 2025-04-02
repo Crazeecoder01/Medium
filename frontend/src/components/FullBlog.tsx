@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppBar } from './AppBar';
 import { Blog } from '../hooks';
+import PremiumContent from './AccessCheck';
 
 
 
@@ -15,6 +16,7 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
             <div className="text-slate-500 pt-2">
               Posted on {new Date(blog.publishedAt).toDateString().slice(4)}
             </div>
+            
             <div className='flex flex-wrap gap-2'>
 
             {blog.tags?.slice(0, 3).map((tag, index) => (
@@ -23,7 +25,13 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
                         </span>
                     ))}
             </div>
-            <div className="pt-4 text-justify">{blog.content} </div>
+            {blog.isPremium ? (
+                    <PremiumContent postId={blog.id} />
+                ):(
+
+                  <div className="pt-4 text-justify">{blog.content} </div>
+                )
+            }
           </div>
           <div className="md:col-span-4 mt-6 md:mt-0">
             <div className="text-slate-600 text-lg">Author</div>

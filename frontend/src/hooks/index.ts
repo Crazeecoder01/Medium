@@ -8,9 +8,11 @@ export interface Blog{
     "publishedAt": string,
     "tags": string[],
     "author": {
-        "name": string
+        "name": string,
+        "id": string
     },
-    "id": string
+    "id": string,
+    "isPremium": boolean
 }
 export interface User{
     "id": string,

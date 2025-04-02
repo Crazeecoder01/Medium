@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import SubscribeButton from "./SubscribeButton";
+import TipButton from "./TipButton";
 
 interface BlogCardProps {
     id: string;
     authorName: string;
+    authorId: string,
     title: string;
     content: string;
     publishedAt: string;
     tags?: string[];
 }
 
-export const BlogCard = ({id, authorName, title, content, publishedAt, tags }: BlogCardProps) => {
+export const BlogCard = ({id, authorName, authorId, title, content, publishedAt, tags }: BlogCardProps) => {
     const publishedDate = publishedAt.substring(0, 10);
     const [saved, setSaved] = useState(false);
 
@@ -21,6 +24,9 @@ export const BlogCard = ({id, authorName, title, content, publishedAt, tags }: B
                 <Avatar name={authorName} />
                 <div className="text-sm text-gray-700">
                     <span className="font-semibold">{authorName}</span> • <span className="text-gray-500">{publishedDate}</span>
+                </div>
+                <div>
+                <SubscribeButton writerId={authorId} />
                 </div>
             </div>
             <Link to={`/blog/${id}`}>
@@ -39,7 +45,7 @@ export const BlogCard = ({id, authorName, title, content, publishedAt, tags }: B
             </div>
             </Link>
 
-   
+            
             <div className="flex justify-between items-center mt-3">
                 <div className="flex flex-wrap gap-2">
                     {tags?.slice(0, 3).map((tag, index) => (
@@ -48,6 +54,11 @@ export const BlogCard = ({id, authorName, title, content, publishedAt, tags }: B
                         </span>
                     ))}
                     <span className="text-gray-500 text-sm">{`${Math.ceil(content.length / 100)} min read`}</span>
+                </div>
+                <div className="mt-2 flex gap-2">
+                    {/* //Recheck for ID */}
+                    <TipButton writerId={authorId} /> 
+                    
                 </div>
                 <button onClick={() => setSaved(!saved)} className="text-blue-500 text-sm">
                     {saved ? "Unsave" : "Save"}
@@ -58,9 +69,10 @@ export const BlogCard = ({id, authorName, title, content, publishedAt, tags }: B
 };
 
 export function Avatar({ name }: { name: string }) {
+    const initial = name && name.length > 1 ? name[0] : name?.charAt(0) || "";
     return (
         <div className="relative inline-flex items-center justify-center w-6 h-6 md:w-8 md:h-8 rounded-full bg-gray-600">
-            <span className="text-gray-300 text-sm md:text-base font-medium capitalize">{name[0]}</span>
+            <span className="text-gray-300 text-sm md:text-base font-medium capitalize">{initial}</span>
         </div>
     );
 }

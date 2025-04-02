@@ -2,7 +2,8 @@ import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
 import { sign, verify } from "hono/jwt";
-import {signinInput, signupInput } from "@himanshu01/blog-common";
+import {signinInput, signupInput, subscriptionInput, tipInput } from "@himanshu01/blog-common";
+import {z} from "zod";
 export const userRouter = new Hono<{
     Bindings: {
         A_DATABASE_URL: string,
@@ -254,3 +255,119 @@ userRouter.post('/cancel-subscription', async (c) => {
     return c.json({ message: "Error canceling subscription" });
   }
 });
+
+
+userRouter.post('/tips', async(c)=>{
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env?.A_DATABASE_URL,
+    }).$extends(withAccelerate()) 
+
+    const body = await c.req.json();
+    const authHeader = c.req.header("Authorization");
+
+    if (!authHeader) {
+      c.status(401);
+      return c.json({ message: "User not signed in" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const secret = c.env.JWT_SECRET;
+    const decoded = await verify(token, secret) ;
+    let userId = decoded.id as string;
+
+    const { writerId, amount } = tipInput.parse(body);
+
+    if (userId === writerId) {
+      return c.json({ message: "You cannot tip yourself!" }, 400);
+    }
+    try{
+      const tip = await prisma.tip.create({
+        data: {
+          readerId: userId,
+          writerId,
+          amount,
+        },
+      });
+      return c.json({ message: "Tip sent successfully!", tip }, 200);
+    }catch(e){
+      c.status(500)
+      return c.json({message: 'error while sending tips'})
+    }
+})
+
+userRouter.post('/writer-subscriptions', async(c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.A_DATABASE_URL,
+  }).$extends(withAccelerate()) 
+
+  const body = await c.req.json();
+  const authHeader = c.req.header("Authorization");
+
+  if (!authHeader) {
+    c.status(401);
+    return c.json({ message: "User not signed in" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  const secret = c.env.JWT_SECRET;
+  const decoded = await verify(token, secret) ;
+  let userId = decoded.id as string;
+  const { writerId } = subscriptionInput.parse(body);
+
+  if (userId === writerId) {
+    return c.json({ message: "You cannot subscribe to yourself!" }, 400);
+  }
+
+  try{
+    const existingSubscription = await prisma.writerSubscription.findFirst({
+      where: { readerId:userId, writerId },
+    });
+
+    if (existingSubscription) {
+      return c.json({ message: "Already subscribed!" }, 400);
+    }
+
+    const subscription = await prisma.writerSubscription.create({
+      data: { readerId:userId, writerId },
+    });
+
+    return c.json({ message: "Subscribed successfully!", subscription }, 200);
+  }catch (e) {
+    return c.json({ message: "Error while subscribing", error: e.message }, 500);
+  }
+
+})
+
+userRouter.get('/writer-subscriptions/:writerId', async(c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env?.A_DATABASE_URL,
+  }).$extends(withAccelerate()) 
+
+  const authHeader = c.req.header("Authorization");
+
+  if (!authHeader) {
+    c.status(401);
+    return c.json({ message: "User not signed in" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  const secret = c.env.JWT_SECRET;
+  const decoded = await verify(token, secret) ;
+  let userId = decoded.id as string;
+  
+  const writerId = c.req.param('writerId')
+  try{
+    const subscription = await prisma.writerSubscription.findFirst({
+      where: { readerId:userId, writerId },
+    });
+
+    if (subscription) {
+      return c.json({ subscribed: true }, 200);
+    } else {
+      return c.json({ subscribed: false }, 200);
+    }
+  }catch(e){
+    c.status(500)
+    return c.json({message: 'error while checking subscription'})
+  }
+})

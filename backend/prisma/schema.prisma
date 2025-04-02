@@ -3,35 +3,42 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  posts     Post[]
-  comments  Comment[]
-  subscription UserSubscription?
-  @@map("User") 
+  id                  String               @id @default(uuid())
+  name                String
+  email               String               @unique
+  password            String
+  posts               Post[]
+  comments            Comment[]
+  subscription        UserSubscription?
+  readerSubscriptions WriterSubscription[] @relation("ReaderSubscriptions")
+  writerSubscriptions WriterSubscription[] @relation("UserSubscriptions")
+  receivedTips        Tip[]                @relation("ReaderTips")
+  givenTips           Tip[]                @relation("WriterTips")
+
+  @@map("User")
 }
 
 model Post {
-  id        String   @id @default(uuid())
-  title     String
-  content   String
-  published Boolean  @default(false)
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
-  publishedAt DateTime @default(now())
-  tags      String[]
-  coverImage String?
-  comments   Comment[]
+  id          String    @id @default(uuid())
+  title       String
+  content     String
+  published   Boolean   @default(false)
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  publishedAt DateTime  @default(now())
+  tags        String[]
+  coverImage  String?
+  comments    Comment[]
+  isPremium   Boolean   @default(false)
 }
+
 model Comment {
-  id       String   @id @default(uuid())
+  id        String   @id @default(uuid())
   content   String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
@@ -41,20 +48,40 @@ model Comment {
 }
 
 model SubscriptionPlan {
-  id          String  @id @default(uuid())
-  name        String  @unique
+  id        String             @id @default(uuid())
+  name      String             @unique
   details   String
-  price       Int     
-  duration    Int     
-  createdAt   DateTime @default(now())
-  users       UserSubscription[]
+  price     Int
+  duration  Int
+  createdAt DateTime           @default(now())
+  users     UserSubscription[]
 }
+
 model UserSubscription {
-  id          String   @id @default(uuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id])
-  planId      String
-  plan        SubscriptionPlan @relation(fields: [planId], references: [id])
-  expiresAt   DateTime
-  createdAt   DateTime @default(now())
+  id        String           @id @default(uuid())
+  userId    String           @unique
+  user      User             @relation(fields: [userId], references: [id])
+  planId    String
+  plan      SubscriptionPlan @relation(fields: [planId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime         @default(now())
+}
+
+model Tip {
+  id        String   @id @default(uuid())
+  amount    Int
+  readerId  String
+  reader    User     @relation(name: "ReaderTips", fields: [readerId], references: [id], onDelete: Cascade)
+  writerId  String
+  writer    User     @relation(name: "WriterTips", fields: [writerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model WriterSubscription {
+  id        String   @id @default(uuid())
+  readerId  String
+  reader    User     @relation(name: "ReaderSubscriptions", fields: [readerId], references: [id], onDelete: Cascade)
+  writerId  String
+  writer    User     @relation(name: "UserSubscriptions", fields: [writerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }

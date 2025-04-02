@@ -1,10 +1,13 @@
 import React from 'react'
+import { Crown, Pencil } from "lucide-react";
 
 import { ProfileIcon } from './ProfileIcon'
 import { Link } from 'react-router-dom'
 import { GlowingButton } from './GlowingButton'
+import { useUser } from '../hooks'
 
 export const AppBar = () => {
+  const { user } = useUser();
   return (
     <div className='flex justify-between py-4 px-12 '>
         <div className='flex items-center'>
@@ -16,12 +19,18 @@ export const AppBar = () => {
            
         </div>
         <div className='flex items-center gap-6'>
-        <Link to="/subscription" className="mr-4">Subscription</Link>
+        <Link
+          to="/subscription"
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
+        >
+          <Crown className="w-5 h-5 text-white" /> 
+          Premium
+        </Link>
           <Link to={'/publish'}>
-          <GlowingButton text='New' />
-            {/* <button className='bg-blue-500 text-white px-4 py-2 rounded'>New</button> */}
+          <GlowingButton text="New" icon={<Pencil size={16} className="ml-2" />}  />
+            
           </Link>
-            <div className=''><ProfileIcon name='Himanshu' email='hgupta080104@gmail.com' avatarSrc=''/></div>
+            <div className=''><ProfileIcon name={user?.name} email={user?.email} avatarSrc=''/></div>
         </div>
     </div>
   )

@@ -1,14 +1,15 @@
 import { motion } from "framer-motion";
 
-export const GlowingButton = ({ text = "Click Me" }) => {
+export const GlowingButton = ({ text = "Click Me" , icon}) => {
     return (
         <motion.button
-            className="relative px-6 py-3 font-bold text-white rounded-lg shadow-lg overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600"
+            className="relative flex items-center justify-center px-6 py-3 font-bold text-white rounded-lg shadow-lg overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
         >
-            <span className="relative z-10">{text}</span>
-
+            
+                {text} {icon}
+            
             <motion.div
                 className="absolute inset-0 bg-white opacity-20"
                 style={{

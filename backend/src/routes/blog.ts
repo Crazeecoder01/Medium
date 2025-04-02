@@ -108,7 +108,8 @@ blogRouter.get('/bulk', async (c) => {
                 published:true,
                 author:{
                     select:{
-                        name: true    
+                        name: true,
+                        id: true
                     }
                 },
                 tags: true
@@ -141,7 +142,8 @@ blogRouter.get('/:id', async (c) => {
                 published:true,
                 author:{
                     select:{
-                        name: true    
+                        name: true,
+                        id: true 
                     }
                 },
                 tags: true
@@ -198,3 +200,41 @@ blogRouter.get('/comments/:id', async (c) => {
 })
 
 
+blogRouter.get('/:postId/access', async (c) => {
+    const postId = c.req.param("postId");
+    const userId = c.get('userId');
+  
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env.A_DATABASE_URL,
+    }).$extends(withAccelerate());
+  
+    try {
+      const post = await prisma.post.findUnique({
+        where: { id: postId },
+        select: { isPremium: true, authorId: true },
+      });
+  
+      if (!post) {
+        c.status(404);
+        return c.json({ message: "Post not found" });
+      }
+  
+      if (!post.isPremium) {
+        return c.json({ hasAccess: true });
+      }
+  
+      const subscription = await prisma.writerSubscription.findFirst({
+        where: { readerId: userId, writerId: post.authorId },
+      });
+  
+      if (subscription) {
+        return c.json({ hasAccess: true });
+      }
+  
+      c.status(403);
+      return c.json({ hasAccess: false, message: "Subscribe to access this post" });
+    } catch (e) {
+      c.status(500);
+      return c.json({ message: "Error checking access", error: e.message });
+    }
+  });

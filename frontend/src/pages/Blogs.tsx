@@ -29,6 +29,8 @@ export const Blogs = () => {
         <>
             <AppBar />
             <main className="flex flex-col items-center px-4">
+        
+            
                 <div className="w-full max-w-4xl">
                    
                     {blogs.length === 0 ? (
@@ -40,12 +42,14 @@ export const Blogs = () => {
                                 <BlogCard
                                     id= {blog.id}
                                     authorName={blog.author.name}
+                                    authorId={blog.author.id}
                                     title={blog.title}
                                     content={blog.content}
                                     publishedAt={blog.publishedAt}
                                     tags={blog.tags}
                                 />
                             </article>
+                            
                         ))
                     )}
                 </div>
