@@ -30,7 +30,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ plan, setCurrentPla
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCurrentPlan(response.data);
-      navigate("/blogs")
+      navigate("/dashboard")
     } catch (error) {
       console.error("Subscription error:", error);
     } finally {

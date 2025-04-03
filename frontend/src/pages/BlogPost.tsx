@@ -5,6 +5,7 @@ import { useBlog } from "../hooks";
 import { FullBlog } from "../components/FullBlog";
 import { Spinner } from "../components/Spinner";
 import { Comment } from "../components/PostComment";
+import { FullBlogSkeleton } from "../components/FullBlogSkeleton";
 
 
 export const BlogPost = () => {
@@ -16,11 +17,8 @@ export const BlogPost = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <div className="text-gray-500 text-lg font-semibold">
-                    <Spinner/>
-                </div>
-            </div>
+           
+            <FullBlogSkeleton/>
         );
     }
     console.log(blog)

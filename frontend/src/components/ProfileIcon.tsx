@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Avatar } from "./BlogCard";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface ProfileIconProps {
   name: string;
@@ -52,12 +52,12 @@ export const ProfileIcon = ({ name, email, avatarSrc }: ProfileIconProps) => {
           </div>
           <ul className="py-2 text-sm text-gray-700 ">
             <li>
-              <a
-                href="#"
+              <Link to={'/dashboard'}
+                
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 "
               >
                 Dashboard
-              </a>
+              </Link>
             </li>
             <li>
               <a

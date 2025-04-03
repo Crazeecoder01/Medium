@@ -371,3 +371,43 @@ userRouter.get('/writer-subscriptions/:writerId', async(c)=>{
     return c.json({message: 'error while checking subscription'})
   }
 })
+
+userRouter.get('/dashboard', async(c)=>{
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env?.A_DATABASE_URL,
+    }).$extends(withAccelerate()) 
+
+    const authHeader = c.req.header("Authorization");
+
+    if (!authHeader) {
+      c.status(401);
+      return c.json({ message: "User not signed in" });
+    } 
+    const token = authHeader.split(" ")[1];
+    const secret = c.env.JWT_SECRET;
+    
+    try{
+        const decoded = await verify(token, secret);
+        let userId = decoded.id as string;
+
+        const [subscribers, subscriptions, tipsReceived, tipsGiven, activeSubscription] = await Promise.all([
+            prisma.writerSubscription.count({ where: { writerId: userId } }),
+            prisma.writerSubscription.count({ where: { readerId: userId } }),
+            prisma.tip.aggregate({ _sum: { amount: true }, where: { writerId: userId } }),
+            prisma.tip.aggregate({ _sum: { amount: true }, where: { readerId: userId } }),
+            prisma.userSubscription.findUnique({ where: { userId }, include: { plan: true } })
+        ]);
+
+         return c.json({
+            subscribersCount: subscribers,
+            subscriptionsCount: subscriptions,
+            totalTipsReceived: tipsReceived._sum.amount || 0,
+            totalTipsGiven: tipsGiven._sum.amount || 0,
+            activePlan: activeSubscription ? activeSubscription.plan : null
+        });
+
+    }catch(error){
+        c.status(500);
+        return c.json({ message: "Error fetching dashboard data", error });
+    }
+})

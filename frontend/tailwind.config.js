@@ -21,6 +21,15 @@ module.exports = {
           center: true,
           padding: "1rem",
         },
+        animation: {
+          'slide-in': 'slide-in 0.3s ease-out forwards',
+        },
+        keyframes: {
+          'slide-in': {
+            '0%': { transform: 'translateX(100%)', opacity: '0' },
+            '100%': { transform: 'translateX(0)', opacity: '1' },
+          },
+        }
       },
     },
     plugins: [
@@ -28,5 +37,6 @@ module.exports = {
       require("@tailwindcss/forms"),
       require("@tailwindcss/aspect-ratio"),
     ],
+   
   };
   

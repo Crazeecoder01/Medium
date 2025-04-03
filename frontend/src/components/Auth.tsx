@@ -26,7 +26,7 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
 
            if (response.data.message) {
             alert(response.data.message);  // Show alert with the message from backend
-            return;
+            // return;
          }
             const jwt = response.data;
             
