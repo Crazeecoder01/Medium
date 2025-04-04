@@ -20,7 +20,8 @@ const PremiumContent: React.FC<PremiumContentProps> = ({ postId }) => {
 
         setHasAccess(data.hasAccess);
       } catch (error) {
-        setMessage(error.response?.data?.message || "No access to this content.");
+        console.error("Error checking access:", error);
+        setMessage( "No access to this content.");
       } finally {
         setLoading(false);
       }

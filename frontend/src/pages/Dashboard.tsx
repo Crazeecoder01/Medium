@@ -5,23 +5,39 @@ import { Loader, AlertTriangle, Users, DollarSign, CheckCircle, Gift, Crown } fr
 import { AppBar } from "../components/AppBar";
 import { Link } from "react-router-dom";
 
+type Plan = {
+  name: string;
+  price: number;
+};
+
+type DashboardData = {
+  subscribersCount: number;
+  subscriptionsCount: number;
+  totalTipsReceived: number;
+  totalTipsGiven: number;
+  activePlan?: Plan | null;
+};
+
 const Dashboard = () => {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         const token = localStorage.getItem("token");
+        if (!token) throw new Error("User not authenticated");
+
         const res = await axios.get(`${BACKEND_URL}/api/v1/user/dashboard`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         setData(res.data);
-        if (!res.data.activePlan) {
-            setShowPopup(true);
-          }
+        if (!res.data.activePlan) setShowPopup(true);
       } catch (err) {
+        console.error("Error fetching dashboard data:", err);
         setError("Failed to fetch dashboard data");
       } finally {
         setLoading(false);
@@ -62,29 +78,30 @@ const Dashboard = () => {
             </p>
           </div>
 
+          {/* Stats Section */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 label: "Subscribers",
-                value: data.subscribersCount,
+                value: data?.subscribersCount ?? 0,
                 color: "bg-blue-100 text-blue-800",
                 icon: <Users className="w-8 h-8" />,
               },
               {
                 label: "Writers Subscribed",
-                value: data.subscriptionsCount,
+                value: data?.subscriptionsCount ?? 0,
                 color: "bg-green-100 text-green-800",
                 icon: <CheckCircle className="w-8 h-8" />,
               },
               {
                 label: "Tips Received",
-                value: `$${data.totalTipsReceived}`,
+                value: `$${data?.totalTipsReceived ?? 0}`,
                 color: "bg-yellow-100 text-yellow-800",
                 icon: <DollarSign className="w-8 h-8" />,
               },
               {
                 label: "Tips Given",
-                value: `$${data.totalTipsGiven}`,
+                value: `$${data?.totalTipsGiven ?? 0}`,
                 color: "bg-red-100 text-red-800",
                 icon: <Gift className="w-8 h-8" />,
               },
@@ -104,36 +121,46 @@ const Dashboard = () => {
             ))}
           </div>
 
-          { (
-            <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
-              <div className="max-w-2xl mx-auto text-center">
-                <h2 className="text-2xl font-bold mb-2">Your Active Plan</h2>
-                <p className="text-2xl uppercase font-semibold text-yellow-300">{data.activePlan?.name}</p>
-                <p className="text-lg  mb-6">${data.activePlan?.price}/month</p>
-                {data.activePlan?null: (<Link to={'/subscription'} className="px-6 py-3 bg-white text-purple-600 font-medium rounded-lg shadow-md hover:bg-gray-100 transition-colors">
+          {/* Active Plan Section */}
+          <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
+            <div className="max-w-2xl mx-auto text-center">
+              <h2 className="text-2xl font-bold mb-2">Your Active Plan</h2>
+              {data?.activePlan ? (
+                <>
+                  <p className="text-2xl uppercase font-semibold text-yellow-300">
+                    {data.activePlan.name}
+                  </p>
+                  <p className="text-lg mb-6">${data.activePlan.price}/month</p>
+                </>
+              ) : (
+                <Link 
+                  to="/subscription" 
+                  className="px-6 py-3 bg-white text-purple-600 font-medium rounded-lg shadow-md hover:bg-gray-100 transition-colors"
+                >
                   Manage Subscription
-                </Link>)}
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Subscription Popup */}
+          {showPopup && (
+            <div className="fixed inset-0 flex items-start justify-end p-4">
+              <div className="bg-yellow-200 text-yellow-900 rounded-xl shadow-lg p-6 flex items-center space-x-4 relative animate-slide-in">
+                <Crown className="w-10 h-10" />
+                <div>
+                  <h2 className="text-2xl font-bold">Premium Content Access</h2>
+                  <p className="text-lg">Enjoy exclusive premium content with your subscription.</p>
+                </div>
+                <button 
+                  className="absolute top-2 right-2 text-yellow-900 font-bold hover:text-yellow-700 transition-colors" 
+                  onClick={() => setShowPopup(false)}
+                >
+                  ✕
+                </button>
               </div>
             </div>
           )}
-
-            {showPopup && (
-            <div className="fixed inset-0.5 flex items-start justify-end p-4">
-                <div className="bg-yellow-200 text-yellow-900 rounded-xl shadow-lg p-6 flex items-center space-x-4 relative animate-slide-in">
-                <Crown className="w-10 h-10" />
-                <div>
-                    <h2 className="text-2xl font-bold">Premium Content Access</h2>
-                    <p className="text-lg">Enjoy exclusive premium content with your subscription.</p>
-                </div>
-                <button 
-                    className="absolute top-2 right-2 text-yellow-900 font-bold hover:text-yellow-700 transition-colors" 
-                    onClick={() => setShowPopup(false)}
-                >
-                    ✕
-                </button>
-                </div>
-            </div>
-            )}
         </div>
       </div>
     </div>

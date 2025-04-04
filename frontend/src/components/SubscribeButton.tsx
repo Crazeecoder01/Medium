@@ -49,7 +49,8 @@ const SubscribeButton: React.FC<SubscribeButtonProps> = ({ writerId }) => {
         }
         , 3000);
       } catch (error) {
-        setMessage(error.response?.data?.message || "Failed to subscribe.");
+        console.error("Error subscribing to writer:", error);
+        setMessage( "Failed to subscribe.");
       } finally {
         setLoading(false);
       }

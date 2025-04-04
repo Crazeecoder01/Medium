@@ -30,7 +30,8 @@ const TipButton = ({ writerId }: TipButtonProps) => {
         }
         , 3000);
       } catch (error) {
-        setMessage(error.response?.data?.message || "Failed to send tip.");
+        console.error("Error sending tip:", error);
+        setMessage( "Failed to send tip.");
       } finally {
         setLoading(false);
       }

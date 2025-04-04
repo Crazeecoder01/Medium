@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 import axios from 'axios'
 import { BACKEND_URL } from '../config'
 
@@ -125,7 +125,8 @@ type Plan = {
     id: string;
     name: string;
     price: number;
-  };
+    details: string;
+};
   
   export const usePlans = (token: string | null) => {
     const [plans, setPlans] = useState<Plan[]>([]);

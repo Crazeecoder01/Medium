@@ -3,12 +3,7 @@ import SubscriptionCard from "../components/SubscriptionCard";
 import SubscriptionSkeleton from "../components/SubscriptionSkeleton";
 import { usePlans } from "../hooks";
 import { BACKEND_URL } from "../config";
-interface Plan {
-    id: string;
-    name: string;
-    price: number;
-    details: string;
-  }
+
 const Subscription = () => {
   const token = localStorage.getItem("token");
   const { plans, currentPlan, setCurrentPlan, loading } = usePlans(token);
