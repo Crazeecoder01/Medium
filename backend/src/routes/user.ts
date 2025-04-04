@@ -3,7 +3,6 @@ import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
 import { sign, verify } from "hono/jwt";
 import {signinInput, signupInput, subscriptionInput, tipInput } from "@himanshu01/blog-common";
-import {z} from "zod";
 export const userRouter = new Hono<{
     Bindings: {
         A_DATABASE_URL: string,
@@ -44,43 +43,64 @@ userRouter.post('/signin', async (c) => {
     }
   })
   
-userRouter.post('/signup', async (c) => {
-      const prisma = new PrismaClient({
-        datasourceUrl: c.env?.A_DATABASE_URL,
-      }).$extends(withAccelerate()) 
-
+  userRouter.post('/signup', async (c) => {
+    console.log("🔹 Received signup request");
+  
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env.A_DATABASE_URL,
+    }).$extends(withAccelerate());
+  
+    try {
       const body = await c.req.json();
-
-      const {success} = signupInput.safeParse(body)
-      if(!success){
-        c.status(400)
-        return c.json({message: 'invalid input'})
+      console.log("📥 Request Body:", body);
+  
+      const { success } = signupInput.safeParse(body);
+      if (!success) {
+        console.error("❌ Invalid Input:", body);
+        c.status(400);
+        return c.json({ message: 'Invalid input' });
       }
-      try{
-        const existingUser = await prisma.user.findUnique({
-          where: { email: body.email },
-        });
-    
-        if (existingUser) {
-          c.status(409);
-          return c.json({ message: 'User already exists', status: 409 });
-        }
-        const user = await prisma.user.create({
-          data: {
-            name: body.name,
-            email: body.email,
-            password: body.password,
-          },
-        })
-        
-        const secret = c.env.JWT_SECRET
-        const token = await sign({id: user.id}, secret)
-        return c.json({jwt: token})
-      }catch(e){
-        c.status(401)
-        return c.json({message: "error while signing up"})
+  
+      const existingUser = await prisma.user.findUnique({
+        where: { email: body.email },
+      });
+  
+      if (existingUser) {
+        console.warn("⚠️ User already exists:", body.email);
+        c.status(409);
+        return c.json({ message: 'User already exists', status: 409 });
       }
-})
+  
+      const user = await prisma.user.create({
+        data: {
+          name: body.name,
+          email: body.email,
+          password: body.password,
+        },
+      });
+  
+      console.log("✅ New user created:", user.email);
+  
+      const secret = c.env.JWT_SECRET;
+      if (!secret) {
+        console.error("🚨 JWT_SECRET is undefined!");
+        c.status(500);
+        return c.json({ message: "Server error: JWT_SECRET missing" });
+      }
+  
+      console.log("🔑 Signing token with secret:", secret);
+      const token = await sign({ id: user.id }, secret);
+  
+      console.log("✅ Token generated successfully");
+      return c.json({ jwt: token });
+  
+    } catch (e) {
+      console.error("🚨 Error during signup:", e);
+      c.status(401);
+      return c.json({ message: "Error while signing up", error: e.message });
+    }
+  });
+  
 
 userRouter.get('/me', async (c) => {
   const prisma = new PrismaClient({
