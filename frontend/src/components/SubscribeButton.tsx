@@ -1,7 +1,7 @@
 import axios from "axios";
-import { use, useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import { BACKEND_URL } from "../config";
-import { Check, Crown, Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 
 interface SubscribeButtonProps {
   writerId: string;
@@ -34,7 +34,7 @@ const SubscribeButton: React.FC<SubscribeButtonProps> = ({ writerId }) => {
     setMessage("");
 
     try {
-        const res = await axios.post(
+        await axios.post(
           `${BACKEND_URL}/api/v1/user/writer-subscriptions`,
           { writerId },
           {

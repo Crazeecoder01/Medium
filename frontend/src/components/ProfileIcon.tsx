@@ -7,10 +7,9 @@ import { Link, useNavigate } from "react-router-dom";
 interface ProfileIconProps {
   name: string;
   email: string;
-  avatarSrc: string;
 }
 
-export const ProfileIcon = ({ name, email, avatarSrc }: ProfileIconProps) => {
+export const ProfileIcon = ({ name, email }: ProfileIconProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
     const handleSignout = async () => {
@@ -32,13 +31,7 @@ export const ProfileIcon = ({ name, email, avatarSrc }: ProfileIconProps) => {
   return (
     <div className="">
  
-      {/* <img
-        id="avatarButton"
-        className="w-10 h-10 rounded-full cursor-pointer"
-        src={avatarSrc}
-        alt="User dropdown"
-        onClick={() => setIsOpen((prev) => !prev)}
-      /> */}
+      
       <div  onClick={() => setIsOpen((prev) => !prev)} className="cursor-pointer rounded-full flex items-center justify-center">
       <Avatar name={name} />
       </div>

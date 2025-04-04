@@ -29,7 +29,7 @@ export const AppBar = () => {
           <GlowingButton text="New" icon={<Pencil size={16} className="ml-2" />}  />
             
           </Link>
-            <div className=''><ProfileIcon name={user?.name || ""} email={user?.email || ""} avatarSrc=''/></div>
+            <div className=''><ProfileIcon name={user?.name || ""} email={user?.email || ""} /></div>
         </div>
     </div>
   )
