@@ -36,6 +36,12 @@ export const subscriptionInput = z.object({
 export const premiumAccessInput = z.object({
     postId: z.string().uuid("Invalid post ID format"),
 });
+
+export const suggestionInput = z.object({
+    title: z.string().min(1),
+    content: z.string().min(1),
+});
+export type SuggestionInput = z.infer<typeof suggestionInput>;
 export type CreateBlogInput = z.infer<typeof createBlogInput>
 export type UpdateBlogInput = z.infer<typeof updateBlogInput>
 export type SigninInput = z.infer<typeof signinInput>

@@ -14,7 +14,9 @@
     "@prisma/extension-accelerate": "^1.2.2",
     "blog-common": "^1.0.0",
     "crypto": "^1.0.1",
+    "dotenv": "^16.4.7",
     "hono": "^4.7.4",
+    "openai": "^4.91.1",
     "prisma": "^6.4.1",
     "razorpay": "^2.9.6"
   },

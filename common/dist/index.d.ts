@@ -82,6 +82,17 @@ export declare const premiumAccessInput: z.ZodObject<{
 }, {
     postId: string;
 }>;
+export declare const suggestionInput: z.ZodObject<{
+    title: z.ZodString;
+    content: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    title: string;
+    content: string;
+}, {
+    title: string;
+    content: string;
+}>;
+export type SuggestionInput = z.infer<typeof suggestionInput>;
 export type CreateBlogInput = z.infer<typeof createBlogInput>;
 export type UpdateBlogInput = z.infer<typeof updateBlogInput>;
 export type SigninInput = z.infer<typeof signinInput>;

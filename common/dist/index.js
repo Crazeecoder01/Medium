@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.premiumAccessInput = exports.subscriptionInput = exports.tipInput = exports.updateBlogInput = exports.signupInput = exports.signinInput = exports.createCommentInput = exports.createBlogInput = void 0;
+exports.suggestionInput = exports.premiumAccessInput = exports.subscriptionInput = exports.tipInput = exports.updateBlogInput = exports.signupInput = exports.signinInput = exports.createCommentInput = exports.createBlogInput = void 0;
 const zod_1 = require("zod");
 exports.createBlogInput = zod_1.z.object({
     title: zod_1.z.string().min(3),
@@ -34,4 +34,8 @@ exports.subscriptionInput = zod_1.z.object({
 });
 exports.premiumAccessInput = zod_1.z.object({
     postId: zod_1.z.string().uuid("Invalid post ID format"),
+});
+exports.suggestionInput = zod_1.z.object({
+    title: zod_1.z.string().min(1),
+    content: zod_1.z.string().min(1),
 });
