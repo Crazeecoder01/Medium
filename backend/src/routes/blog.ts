@@ -3,15 +3,19 @@ import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
 import { verify } from "hono/jwt";
+import { getCachedBlogs, setCachedBlogs } from '../utils/blogCache';
 
 export const blogRouter = new Hono<{
     Bindings: {
         A_DATABASE_URL: string,
         JWT_SECRET: string,
+        UPSTASH_REDIS_REST_URL: string,
+        UPSTASH_REDIS_REST_TOKEN: string,
     },
     Variables:{
         userId: string
-    }
+    },
+ 
 }>()
 
 blogRouter.use('/*', async(c, next)=>{
@@ -29,13 +33,15 @@ blogRouter.use('/*', async(c, next)=>{
         if (typeof payload.id !== "string") {
             throw new Error("Invalid token: userId must be a string");
         }
+        console.log("JWT_SECRET:", c.env.JWT_SECRET);
+
         // we signed the jwt with an id so we can get the id from the response
         if(payload){
             c.set('userId', payload.id )
             await next()
         }else{
             c.status(401)
-            return c.json({message: 'invalid token'})
+            return c.json({message: 'invalid token, no payload'})
         }
     }catch(e){
         c.status(401)
@@ -95,9 +101,16 @@ blogRouter.put('/', async(c) => {
 // pagination
 
 blogRouter.get('/bulk', async (c) => {
+    const cached = await getCachedBlogs(c.env);
+    if (cached) {
+      return c.json({fromCache: true, blogs: cached });
+    }
+    
     const prisma =  new PrismaClient({
         datasourceUrl: c.env.A_DATABASE_URL,
     }).$extends(withAccelerate())
+   
+   
     try{
         const blogs = await prisma.post.findMany({
             select:{
@@ -115,6 +128,9 @@ blogRouter.get('/bulk', async (c) => {
                 tags: true
             }
         })
+        
+
+        await setCachedBlogs(c.env, blogs);
         return c.json({blogs})
     }catch(e){
         c.status(411)

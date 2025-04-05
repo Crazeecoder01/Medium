@@ -7,9 +7,11 @@
   //   "nodejs_compat"
   // ],
   "vars": {
-  "A_DATABASE_URL": "${A_DATABASE_URL}",
-  "JWT_SECRET": "${JWT_SECRET}",
-  "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}"
+    "UPSTASH_REDIS_REST_URL" : "${REDIS_URL}",
+    "UPSTASH_REDIS_REST_TOKEN" : "${REDIS_TOKEN}",
+    "A_DATABASE_URL": "${A_DATABASE_URL}",
+    "JWT_SECRET": "${JWT_SECRET}",
+    "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}"
 }
 }
   

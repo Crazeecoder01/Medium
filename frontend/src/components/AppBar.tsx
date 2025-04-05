@@ -8,7 +8,7 @@ import { useUser } from '../hooks'
 export const AppBar = () => {
   const { user } = useUser();
   return (
-    <div className='flex justify-between py-4 px-12 '>
+    <div className='flex justify-between   py-4 px-12 '>
         <div className='flex items-center'>
             <div>
               <Link to={'/blogs'}>

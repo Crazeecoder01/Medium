@@ -41,9 +41,9 @@ userRouter.post('/signin', async (c) => {
       c.status(401)
       return c.json({message: 'error while signing in'})
     }
-  })
+})
   
-  userRouter.post('/signup', async (c) => {
+userRouter.post('/signup', async (c) => {
     console.log("🔹 Received signup request");
   
     const prisma = new PrismaClient({
@@ -97,9 +97,9 @@ userRouter.post('/signin', async (c) => {
     } catch (e) {
       console.error("🚨 Error during signup:", e);
       c.status(401);
-      return c.json({ message: "Error while signing up", error: e.message });
+      return c.json({ message: "Error while signing up" });
     }
-  });
+});
   
 
 userRouter.get('/me', async (c) => {
