@@ -9,7 +9,6 @@ import { BlogPost } from './pages/BlogPost'
 import { Publish } from './pages/Publish'
 import Subscription from './pages/Subscription';
 import Dashboard from './pages/Dashboard';
-// import Blog from './pages/Blog'
 
 function App() {
 
