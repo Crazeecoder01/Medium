@@ -45,7 +45,7 @@ export const AppBar = () => {
           <ProfileIcon 
             name={user?.name || ""} 
             email={user?.email || ""} 
-            size="sm" // Add mobile size prop if your ProfileIcon supports it
+            
           />
         </div>
       </div>
