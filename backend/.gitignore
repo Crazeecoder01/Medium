@@ -14,7 +14,7 @@ dist/
 # deps
 node_modules/
 .wrangler
-wrangler.json
+wrangler.jsonc
 
 # env
 .env
