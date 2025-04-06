@@ -1,7 +1,6 @@
 
 import { AppBar } from './AppBar';
 import { Blog } from '../hooks';
-import PremiumContent from './AccessCheck';
 
 
 
@@ -25,13 +24,9 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
                         </span>
                     ))}
             </div>
-            {blog.isPremium ? (
-                    <PremiumContent postId={blog.id} />
-                ):(
+            
+          <div className="pt-4 text-justify">{blog.content} </div>
 
-                  <div className="pt-4 text-justify">{blog.content} </div>
-                )
-            }
           </div>
           <div className="md:col-span-4 mt-6 md:mt-0">
             <div className="text-slate-600 text-lg">Author</div>

@@ -7,6 +7,7 @@ import { useEffect } from "react";
 
 export const Blogs = () => {
     const { loading, blogs } = useBlogs();
+   
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -53,6 +54,7 @@ export const Blogs = () => {
                                     content={blog.content}
                                     publishedAt={blog.publishedAt}
                                     tags={blog.tags}
+                                    isPremium={blog.isPremium}
                                 />
                             </article>
                         ))

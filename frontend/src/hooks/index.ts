@@ -18,6 +18,7 @@ export interface User{
     "id": string,
     "name": string,
     "email": string,
+    
 }
 export interface Comment{
     "id": string,
@@ -29,6 +30,7 @@ export interface Comment{
         "name": string
     }
 }
+//fetching a specific blog by id
 export const useBlog = ({ id }: { id: string }) => {
   const [loading, setLoading] = useState(true);
   const [blog, setBlog] = useState<Blog | null>(null); 
@@ -52,7 +54,8 @@ export const useBlog = ({ id }: { id: string }) => {
   }, [id]);
 
   return { loading, blog };
-};export const useBlogs = () => {
+};
+export const useBlogs = () => { 
     const [loading, setLoading] = useState(true)
     const [blogs, setBlogs] = useState<Blog[]>([])
     // console.log(localStorage.getItem('token'))
@@ -100,7 +103,6 @@ export const useUser = () => {
 export const useComments = ({id}:{id: string}) => {
     const [loading, setLoading] = useState(true)
     const [comments, setComments] = useState<Comment[]>([])
-    // console.log(localStorage.getItem('token'))
     useEffect(()=>{
         const token = localStorage.getItem('token')
         axios.get(`${BACKEND_URL}/api/v1/blog/comments/${id}`, {

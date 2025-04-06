@@ -9,8 +9,8 @@ export const TextEditor = () => {
     const [tags, setTags] = useState<string[]>([]);
     const [newTag, setNewTag] = useState("");
     const [aiLoading, setAiLoading] = useState(false);
+    const [isMember, setIsMember] = useState(false);
     const [isPremium, setIsPremium] = useState(false);
-    
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -21,13 +21,12 @@ export const TextEditor = () => {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 });
-                setIsPremium(res.data.isSubscribed);
+                setIsMember(res.data.isSubscribed);
             } catch (err) {
                 console.error("Failed to fetch subscription status:", err);
-                setIsPremium(false);
+                setIsMember(false);
             } 
         };
-
         fetchSubscriptionStatus();
     }, []);
 
@@ -70,6 +69,7 @@ export const TextEditor = () => {
 
     return (
         <div className="flex justify-center w-full pt-8">
+            
             <div className="max-w-screen-lg w-full px-4">
 
                 <input 
@@ -108,11 +108,11 @@ export const TextEditor = () => {
                 <div className="flex gap-4 mt-4">
                     <button
                         onClick={handleAISuggest}
-                        className={aiLoading||!isPremium? "px-4 py-2 bg-purple-400 text-white rounded-lg opacity-80 cursor-not-allowed":"px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"}
-                        disabled={aiLoading || !isPremium}
-                        title={!isPremium ? "This feature is only available for premium users." : ""}
+                        className={aiLoading||!isMember? "px-4 py-2 bg-purple-400 text-white rounded-lg opacity-80 cursor-not-allowed":"px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"}
+                        disabled={aiLoading || !isMember}
+                        title={!isMember ? "This feature is only available for premium users." : ""}
                     >   
-                        {aiLoading ? "Generating..." : `${isPremium? "🪄" : ""}AI Suggest`}
+                        {aiLoading ? "Generating..." : `${isMember? "🪄" : ""}AI Suggest`}
                     </button>
 
                     <button
@@ -123,8 +123,9 @@ export const TextEditor = () => {
                                     {
                                         title,
                                         content: description,
-                                        authorId: "", // TODO: Replace or get from context
-                                        tags
+                                        authorId: "", 
+                                        tags,
+                                        isPremium: isPremium,
                                     },
                                     {
                                         headers: {
@@ -142,6 +143,15 @@ export const TextEditor = () => {
                     >
                         Publish Post
                     </button>
+                    <div className="flex items-center gap-2 my-4">
+                        <input
+                            type="checkbox"
+                            checked={isPremium}
+                            onChange={() => setIsPremium(!isPremium)}
+                            className="h-4 w-4"
+                        />
+                        <label className="text-sm text-gray-700">Mark this blog as Premium</label>
+                    </div>
                 </div>
             </div>
         </div>

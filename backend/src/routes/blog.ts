@@ -33,7 +33,7 @@ blogRouter.use('/*', async(c, next)=>{
         if (typeof payload.id !== "string") {
             throw new Error("Invalid token: userId must be a string");
         }
-        console.log("JWT_SECRET:", c.env.JWT_SECRET);
+        // console.log("JWT_SECRET:", c.env.JWT_SECRET);
 
         // we signed the jwt with an id so we can get the id from the response
         if(payload){
@@ -69,6 +69,7 @@ blogRouter.post('/', async (c) => {
             authorId: userId, //string
             publishedAt: new Date(),
             tags: body.tags,
+            isPremium: body.isPremium,
             // coverImage: body.coverImage
         }
     })
@@ -125,7 +126,8 @@ blogRouter.get('/bulk', async (c) => {
                         id: true
                     }
                 },
-                tags: true
+                tags: true,
+                isPremium: true,
             }
         })
         
@@ -140,37 +142,67 @@ blogRouter.get('/bulk', async (c) => {
 
 
 blogRouter.get('/:id', async (c) => {
-    const id = c.req.param("id")
-    const prisma =  new PrismaClient({
-        datasourceUrl: c.env.A_DATABASE_URL,
-    }).$extends(withAccelerate())
-    try{
-
-        const blog = await prisma.post.findFirst({
-            where:{
-                id: id
+    const id = c.req.param("id");
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env.A_DATABASE_URL,
+    }).$extends(withAccelerate());
+  
+    const secret = c.env.JWT_SECRET;
+  
+    try {
+      const blog = await prisma.post.findFirst({
+        where: { id },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          publishedAt: true,
+          published: true,
+          tags: true,
+          isPremium: true,
+          author: {
+            select: {
+              name: true,
+              id: true,
             },
-            select:{
-                id: true,
-                title: true,
-                content: true,
-                publishedAt: true,
-                published:true,
-                author:{
-                    select:{
-                        name: true,
-                        id: true 
-                    }
-                },
-                tags: true
+          },
+        },
+      });
+  
+    //   if (!blog) {
+    //     return c.json({ message: "Blog not found" });
+    //   }
+  
+      if (blog?.isPremium) {
+        const authHeader = c.req.header("Authorization");
+  
+        if (!authHeader) {
+          return c.json({ message: "Authentication required" });
+        }
+  
+        const token = authHeader.split(" ")[1];
+        const decoded = await verify(token, secret);
+        const userId = decoded.id as string;
+  
+        const subscription = await prisma.userSubscription.findUnique({
+          where: { userId },
+          include: { plan: true },
+        });
+        if(userId != blog.author.id){
+            if (!subscription || new Date(subscription.expiresAt) < new Date()) {
+            return c.json({ status: 403, message: "Premium subscription required"});
             }
-        })
-        return c.json({blog})
-    }catch(e){
-        c.status(411)
-        return c.json({message: 'Error while fetching blog'})
+        }
+      }
+  
+      return c.json({ blog });
+  
+    } catch (e) {
+      console.error("Error fetching blog:", e);
+      return c.json({ status:500, message: "Internal server error" });
     }
-})
+  });
+  
 
 blogRouter.post('/comments', async (c) =>{
     const body = await c.req.json()
@@ -215,42 +247,3 @@ blogRouter.get('/comments/:id', async (c) => {
     return c.json(comments)
 })
 
-
-blogRouter.get('/:postId/access', async (c) => {
-    const postId = c.req.param("postId");
-    const userId = c.get('userId');
-  
-    const prisma = new PrismaClient({
-      datasourceUrl: c.env.A_DATABASE_URL,
-    }).$extends(withAccelerate());
-  
-    try {
-      const post = await prisma.post.findUnique({
-        where: { id: postId },
-        select: { isPremium: true, authorId: true },
-      });
-  
-      if (!post) {
-        c.status(404);
-        return c.json({ message: "Post not found" });
-      }
-  
-      if (!post.isPremium) {
-        return c.json({ hasAccess: true });
-      }
-  
-      const subscription = await prisma.writerSubscription.findFirst({
-        where: { readerId: userId, writerId: post.authorId },
-      });
-  
-      if (subscription) {
-        return c.json({ hasAccess: true });
-      }
-  
-      c.status(403);
-      return c.json({ hasAccess: false, message: "Subscribe to access this post" });
-    } catch (e) {
-      c.status(500);
-      return c.json({ message: "Error checking access", error: e.message });
-    }
-  });

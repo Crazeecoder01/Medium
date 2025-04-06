@@ -7,7 +7,7 @@ import { FullBlogSkeleton } from "../components/FullBlogSkeleton";
 export const BlogPost = () => {
     const { id = "" } = useParams<{ id?: string }>(); // Ensure id is always a string
     console.log("Blog ID:", id);
-
+    
     const { loading, blog } = useBlog({ id });
 
     if (loading) {
